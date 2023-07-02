@@ -1,52 +1,54 @@
 // ignore_for_file: empty_constructor_bodies
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tiktok_clone/constants/sizes.dart';
 import 'package:flutter_tiktok_clone/constants/gaps.dart';
 import 'package:flutter_tiktok_clone/features/authentication/widgets/form_button.dart';
-import 'package:flutter_tiktok_clone/features/authentication/widgets/email_screen.dart';
+import 'package:flutter_tiktok_clone/features/onboarding/interests_screen.dart';
 
-class UserNameScreen extends StatefulWidget {
-  const UserNameScreen({super.key});
+class BirthdayScreen extends StatefulWidget {
+  const BirthdayScreen({super.key});
 
   @override
-  State<UserNameScreen> createState() => _UserNameScreenState();
+  State<BirthdayScreen> createState() => _BirthdayScreenState();
 }
 
-class _UserNameScreenState extends State<UserNameScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+class _BirthdayScreenState extends State<BirthdayScreen> {
+  final TextEditingController _birthdayController = TextEditingController();
 
-  String _username = "";
+  DateTime initialDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _usernameController.addListener(
-      () {
-        setState(() {
-          _username = _usernameController.text;
-        });
-      },
-    );
+    _setTextFieldDate(initialDate);
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _birthdayController.dispose();
     super.dispose();
   }
 
   void _onNextTap() {
-    if (_username.isEmpty) return;
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const EmailScreen(),
+        builder: (context) => const InterestsScreen(),
       ),
     );
   }
 
+  void _setTextFieldDate(DateTime date) {
+    final textDate = date.toString().split(" ").first;
+    _birthdayController.value = TextEditingValue(text: textDate);
+  }
+
   @override
   Widget build(BuildContext context) {
+    DateTime maximumDate =
+        DateTime(initialDate.year - 12, initialDate.month, initialDate.day);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -60,7 +62,7 @@ class _UserNameScreenState extends State<UserNameScreen> {
           children: [
             Gaps.v40,
             const Text(
-              "Create username",
+              "When's your birthday?",
               style: TextStyle(
                 fontSize: Sizes.size24,
                 fontWeight: FontWeight.w700,
@@ -68,7 +70,7 @@ class _UserNameScreenState extends State<UserNameScreen> {
             ),
             Gaps.v8,
             const Text(
-              "You can always change this later.",
+              "Your birthday won't be shown publicly.",
               style: TextStyle(
                 fontSize: Sizes.size16,
                 color: Colors.black54,
@@ -76,9 +78,9 @@ class _UserNameScreenState extends State<UserNameScreen> {
             ),
             Gaps.v16,
             TextField(
-              controller: _usernameController,
+              enabled: false,
+              controller: _birthdayController,
               decoration: InputDecoration(
-                hintText: "Username",
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.grey.shade400,
@@ -95,11 +97,22 @@ class _UserNameScreenState extends State<UserNameScreen> {
             Gaps.v16,
             GestureDetector(
               onTap: _onNextTap,
-              child: FormButton(
-                disabled: _username.isEmpty,
+              child: const FormButton(
+                disabled: false,
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: SizedBox(
+          height: 300,
+          child: CupertinoDatePicker(
+            maximumDate: maximumDate,
+            initialDateTime: maximumDate,
+            mode: CupertinoDatePickerMode.date,
+            onDateTimeChanged: _setTextFieldDate,
+          ),
         ),
       ),
     );
